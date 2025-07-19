@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teraforming Mars</title>
+    <style>
+      body {
+        font-family: "Helvetica", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f7f7f7;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+
+      .produce-all {
+        display: block;
+        margin: 10px auto 20px;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        background-color: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        max-width: 300px;
+        width: 100%;
+      }
+
+      .produce-all:active {
+        background-color: #1976d2;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, auto);
+        gap: 16px;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .resource {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        text-align: center;
+      }
+
+      .resource-title {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+        font-weight: bold;
+      }
+
+      .counter {
+        margin: 8px 0;
+      }
+
+      .counter-label {
+        text-align: left;
+        font-size: 1rem;
+        margin-bottom: 6px;
+      }
+
+      .counter-controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .counter-controls button {
+        padding: 6px 10px;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: none;
+        background-color: #4caf50;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        min-width: 44px;
+      }
+
+      .counter-controls button:active {
+        background-color: #388e3c;
+      }
+
+      .counter-controls span {
+        min-width: 40px;
+        font-size: 1.2rem;
+        display: inline-block;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      @media (max-width: 768px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button class="produce-all" onclick="produceAll()">전체 생산</button>
+
+    <div class="grid" id="resources"></div>
+
+    <script>
+      const resourceNames = [
+        "MegaCredit",
+        "강철",
+        "티타늄",
+        "식물",
+        "에너지",
+        "열",
+      ];
+
+      const container = document.getElementById("resources");
+
+      resourceNames.forEach((name) => {
+        const div = document.createElement("div");
+        div.className = "resource";
+
+        div.innerHTML = `
+        <div class="resource-title">${name}</div>
+
+        <div class="counter">
+          <div class="counter-label">생산량</div>
+          <div class="counter-controls">
+            <button onclick="changeValue('${name}', 'production', -1)">-</button>
+            <span id="${name}-production">0</span>
+            <button onclick="changeValue('${name}', 'production', 1)">+</button>
+          </div>
+        </div>
+
+        <div class="counter">
+          <div class="counter-label">현재량</div>
+          <div class="counter-controls">
+            <button onclick="changeValue('${name}', 'amount', -10)">-10</button>
+            <button onclick="changeValue('${name}', 'amount', -5)">-5</button>
+            <button onclick="changeValue('${name}', 'amount', -1)">-</button>
+            <span id="${name}-amount">0</span>
+            <button onclick="changeValue('${name}', 'amount', 1)">+</button>
+            <button onclick="changeValue('${name}', 'amount', 5)">+5</button>
+            <button onclick="changeValue('${name}', 'amount', 10)">+10</button>
+          </div>
+        </div>
+      `;
+
+        container.appendChild(div);
+      });
+
+      function changeValue(name, type, delta) {
+        const id = `${name}-${type}`;
+        const el = document.getElementById(id);
+        let value = parseInt(el.innerText, 10);
+
+        if (type === "production") {
+          if (name === "MC") {
+            value = Math.max(-5, value + delta); // MC는 -5까지 허용
+          } else {
+            value = Math.max(0, value + delta); // 나머지는 0이 최솟값
+          }
+        } else {
+          value = Math.max(0, value + delta); // amount는 모두 0 이상
+        }
+
+        el.innerText = value;
+      }
+
+      function produceAll() {
+        const names = resourceNames;
+        names.forEach((name) => {
+          const prod = parseInt(
+            document.getElementById(`${name}-production`).innerText,
+            10
+          );
+          const amtEl = document.getElementById(`${name}-amount`);
+          let amt = parseInt(amtEl.innerText, 10);
+          if (name == "에너지") {
+            const heat = document.getElementById(`열-amount`);
+            let heatAmt = parseInt(heat.innerText, 10);
+            heat.innerText = heatAmt + amt;
+            amt = 0;
+          }
+          amtEl.innerText = amt + prod;
+        });
+      }
+    </script>
+  </body>
+</html>
