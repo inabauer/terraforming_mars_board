@@ -10,6 +10,8 @@
         margin: 0;
         padding: 20px;
         background: #f7f7f7;
+        position: relative;
+        min-height: 100vh;
       }
 
       h1 {
@@ -35,6 +37,28 @@
 
       .produce-all:active {
         background-color: #1976d2;
+      }
+
+      /* Reset 버튼을 우측 하단 구석에 작게 배치 */
+      .reset-all {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        user-select: none;
+      }
+
+      .reset-all:active {
+        background-color: #d32f2f;
       }
 
       .grid {
@@ -117,6 +141,7 @@
   </head>
   <body>
     <button class="produce-all" onclick="produceAll()">Produce All</button>
+    <button class="reset-all" onclick="resetAll()">Reset</button>
 
     <div class="grid" id="resources"></div>
 
@@ -136,6 +161,19 @@
         const div = document.createElement("div");
         div.className = "resource";
 
+        let extraProduction =
+          name === "MegaCredit"
+            ? `
+        <div class="counter">
+          <div class="counter-label">Teraform Rating</div>
+          <div class="counter-controls">
+            <button onclick="changeValue('${name}', 'production2', -1)">-</button>
+            <span id="${name}-production2">0</span>
+            <button onclick="changeValue('${name}', 'production2', 1)">+</button>
+          </div>
+        </div>`
+            : "";
+
         div.innerHTML = `
         <div class="resource-title">${name}</div>
 
@@ -147,6 +185,7 @@
             <button onclick="changeValue('${name}', 'production', 1)">+</button>
           </div>
         </div>
+        ${extraProduction}
 
         <div class="counter">
           <div class="counter-label">Amount</div>
@@ -170,8 +209,8 @@
         const el = document.getElementById(id);
         let value = parseInt(el.innerText, 10);
 
-        if (type === "production") {
-          if (name === "MegaCredit") {
+        if (type === "production" || type === "production2") {
+          if (name === "MegaCredit" && type === "production") {
             value = Math.max(-5, value + delta);
           } else {
             value = Math.max(0, value + delta);
@@ -184,12 +223,18 @@
       }
 
       function produceAll() {
-        const names = resourceNames;
-        names.forEach((name) => {
+        resourceNames.forEach((name) => {
           const prod = parseInt(
             document.getElementById(`${name}-production`).innerText,
             10
           );
+          let extra = 0;
+          if (name === "MegaCredit") {
+            extra = parseInt(
+              document.getElementById(`${name}-production2`).innerText,
+              10
+            );
+          }
           const amtEl = document.getElementById(`${name}-amount`);
           let amt = parseInt(amtEl.innerText, 10);
           if (name == "Energy") {
@@ -198,7 +243,16 @@
             heat.innerText = heatAmt + amt;
             amt = 0;
           }
-          amtEl.innerText = amt + prod;
+          amtEl.innerText = amt + prod + extra;
+        });
+      }
+
+      function resetAll() {
+        resourceNames.forEach((name) => {
+          document.getElementById(`${name}-production`).innerText = 0;
+          const p2 = document.getElementById(`${name}-production2`);
+          if (p2) p2.innerText = 0;
+          document.getElementById(`${name}-amount`).innerText = 0;
         });
       }
     </script>
