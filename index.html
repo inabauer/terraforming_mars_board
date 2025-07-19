@@ -116,18 +116,18 @@
     </style>
   </head>
   <body>
-    <button class="produce-all" onclick="produceAll()">전체 생산</button>
+    <button class="produce-all" onclick="produceAll()">Produce All</button>
 
     <div class="grid" id="resources"></div>
 
     <script>
       const resourceNames = [
         "MegaCredit",
-        "강철",
-        "티타늄",
-        "식물",
-        "에너지",
-        "열",
+        "Steel",
+        "Titanium",
+        "Plants",
+        "Energy",
+        "Heat",
       ];
 
       const container = document.getElementById("resources");
@@ -140,7 +140,7 @@
         <div class="resource-title">${name}</div>
 
         <div class="counter">
-          <div class="counter-label">생산량</div>
+          <div class="counter-label">Production</div>
           <div class="counter-controls">
             <button onclick="changeValue('${name}', 'production', -1)">-</button>
             <span id="${name}-production">0</span>
@@ -149,7 +149,7 @@
         </div>
 
         <div class="counter">
-          <div class="counter-label">현재량</div>
+          <div class="counter-label">Amount</div>
           <div class="counter-controls">
             <button onclick="changeValue('${name}', 'amount', -10)">-10</button>
             <button onclick="changeValue('${name}', 'amount', -5)">-5</button>
@@ -171,13 +171,13 @@
         let value = parseInt(el.innerText, 10);
 
         if (type === "production") {
-          if (name === "MC") {
-            value = Math.max(-5, value + delta); // MC는 -5까지 허용
+          if (name === "MegaCredit") {
+            value = Math.max(-5, value + delta);
           } else {
-            value = Math.max(0, value + delta); // 나머지는 0이 최솟값
+            value = Math.max(0, value + delta);
           }
         } else {
-          value = Math.max(0, value + delta); // amount는 모두 0 이상
+          value = Math.max(0, value + delta);
         }
 
         el.innerText = value;
@@ -192,8 +192,8 @@
           );
           const amtEl = document.getElementById(`${name}-amount`);
           let amt = parseInt(amtEl.innerText, 10);
-          if (name == "에너지") {
-            const heat = document.getElementById(`열-amount`);
+          if (name == "Energy") {
+            const heat = document.getElementById(`Heat-amount`);
             let heatAmt = parseInt(heat.innerText, 10);
             heat.innerText = heatAmt + amt;
             amt = 0;
