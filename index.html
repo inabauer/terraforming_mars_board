@@ -14,10 +14,11 @@
         min-height: 100vh;
       }
 
-      h1 {
+      .terraform-rate {
         text-align: center;
-        font-size: 1.5rem;
-        margin-bottom: 10px;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
       }
 
       .produce-all {
@@ -37,28 +38,6 @@
 
       .produce-all:active {
         background-color: #1976d2;
-      }
-
-      /* Reset 버튼을 우측 하단 구석에 작게 배치 */
-      .reset-all {
-        position: fixed;
-        bottom: 10px;
-        right: 10px;
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        background-color: #f44336;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-        user-select: none;
-      }
-
-      .reset-all:active {
-        background-color: #d32f2f;
       }
 
       .grid {
@@ -140,8 +119,11 @@
     </style>
   </head>
   <body>
+    <div class="terraform-rate" id="terraformRateDisplay">
+      Terraform Rate: 20
+    </div>
+
     <button class="produce-all" onclick="produceAll()">Produce All</button>
-    <button class="reset-all" onclick="resetAll()">Reset</button>
 
     <div class="grid" id="resources"></div>
 
@@ -156,6 +138,9 @@
       ];
 
       const container = document.getElementById("resources");
+      const terraformRateDisplay = document.getElementById(
+        "terraformRateDisplay"
+      );
 
       resourceNames.forEach((name) => {
         const div = document.createElement("div");
@@ -165,10 +150,10 @@
           name === "MegaCredit"
             ? `
         <div class="counter">
-          <div class="counter-label">Teraform Rating</div>
+          <div class="counter-label">Terraform Rate</div>
           <div class="counter-controls">
             <button onclick="changeValue('${name}', 'production2', -1)">-</button>
-            <span id="${name}-production2">0</span>
+            <span id="${name}-production2">20</span>
             <button onclick="changeValue('${name}', 'production2', 1)">+</button>
           </div>
         </div>`
@@ -181,7 +166,7 @@
           <div class="counter-label">Production</div>
           <div class="counter-controls">
             <button onclick="changeValue('${name}', 'production', -1)">-</button>
-            <span id="${name}-production">0</span>
+            <span id="${name}-production">1</span>
             <button onclick="changeValue('${name}', 'production', 1)">+</button>
           </div>
         </div>
@@ -204,22 +189,30 @@
         container.appendChild(div);
       });
 
+      function updateTerraformRate() {
+        const val = parseInt(
+          document.getElementById("MegaCredit-production2").innerText,
+          10
+        );
+        terraformRateDisplay.innerText = `Terraform Rate: ${val}`;
+      }
+
       function changeValue(name, type, delta) {
         const id = `${name}-${type}`;
         const el = document.getElementById(id);
         let value = parseInt(el.innerText, 10);
 
-        if (type === "production" || type === "production2") {
-          if (name === "MegaCredit" && type === "production") {
-            value = Math.max(-5, value + delta);
-          } else {
-            value = Math.max(0, value + delta);
-          }
+        if (name === "MegaCredit" && type === "production") {
+          value = Math.max(-5, value + delta);
         } else {
           value = Math.max(0, value + delta);
         }
 
         el.innerText = value;
+
+        if (name === "MegaCredit" && type === "production2") {
+          updateTerraformRate();
+        }
       }
 
       function produceAll() {
@@ -247,14 +240,8 @@
         });
       }
 
-      function resetAll() {
-        resourceNames.forEach((name) => {
-          document.getElementById(`${name}-production`).innerText = 0;
-          const p2 = document.getElementById(`${name}-production2`);
-          if (p2) p2.innerText = 0;
-          document.getElementById(`${name}-amount`).innerText = 0;
-        });
-      }
+      // 초기 Terraform Rate 표시 설정
+      updateTerraformRate();
     </script>
   </body>
 </html>
