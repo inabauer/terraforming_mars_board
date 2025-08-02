@@ -254,7 +254,13 @@
 
       let title;
       if (iconMap[name]) {
-        title = `<div class="resource-title">${name} <img src="${iconMap[name]}" style="height: 1.2rem; vertical-align: middle;"></div>`;
+        let specialText = '';
+        if (name === 'Steel') {
+            specialText = ` = <img src="mega_credit_icon.png" style="height: 1.2rem; vertical-align: middle;"> *2`;
+        } else if (name === 'Titanium') {
+            specialText = ` = <img src="mega_credit_icon.png" style="height: 1.2rem; vertical-align: middle;"> *3`;
+        }
+        title = `<div class="resource-title">${name} <img src="${iconMap[name]}" style="height: 1.2rem; vertical-align: middle;">${specialText}</div>`;
       } else {
         title = `<div class="resource-title">${name}</div>`;
       }
