@@ -30,7 +30,7 @@
       font-size: 1rem;
       border-radius: 8px;
       border: none;
-      background-color: #4caf50;
+      background-color: #000020;
       color: white;
       font-weight: bold;
       cursor: pointer;
@@ -38,7 +38,7 @@
     }
 
     .terraform-rate button:active {
-      background-color: #388e3c;
+      background-color: #000040;
     }
 
     .action-buttons {
@@ -62,11 +62,12 @@
     }
 
     .produce-all {
-      background-color: #2196f3;
+      background-color: #000020;
+      /* Dark blue for space */
     }
 
     .produce-all:active {
-      background-color: #1976d2;
+      background-color: #000040;
     }
 
     .undo-btn {
@@ -128,15 +129,28 @@
       font-size: 1rem;
       border-radius: 8px;
       border: none;
-      background-color: #4caf50;
       color: white;
       font-weight: bold;
       cursor: pointer;
       min-width: 44px;
     }
 
-    .counter-controls button:active {
-      background-color: #388e3c;
+    .production-btn {
+      background-color: #000020;
+      /* Dark blue for space */
+    }
+
+    .production-btn:active {
+      background-color: #000040;
+    }
+
+    .amount-btn {
+      background-color: #c04000;
+      /* Red-orange for Mars */
+    }
+
+    .amount-btn:active {
+      background-color: #a03000;
     }
 
     .counter-controls span {
@@ -213,31 +227,47 @@
 
       if (name === 'Plants' || name === 'Heat') {
         amountButtons = `
-            <button onclick="changeValue('${name}', 'amount', -8)">-8</button>
-            <button onclick="changeValue('${name}', 'amount', -1)">-</button>
+            <button class="amount-btn" onclick="changeValue('${name}', 'amount', -8)">-8</button>
+            <button class="amount-btn" onclick="changeValue('${name}', 'amount', -1)">-</button>
             <span id="${name}-amount">0</span>
-            <button onclick="changeValue('${name}', 'amount', 1)">+</button>
-            <button onclick="changeValue('${name}', 'amount', 5)">+5</button>
+            <button class="amount-btn" onclick="changeValue('${name}', 'amount', 1)">+</button>
+            <button class="amount-btn" onclick="changeValue('${name}', 'amount', 5)">+5</button>
         `;
       } else {
         amountButtons = `
-            <button onclick="changeValue('${name}', 'amount', -5)">-5</button>
-            <button onclick="changeValue('${name}', 'amount', -1)">-</button>
+            <button class="amount-btn" onclick="changeValue('${name}', 'amount', -5)">-5</button>
+            <button class="amount-btn" onclick="changeValue('${name}', 'amount', -1)">-</button>
             <span id="${name}-amount">0</span>
-            <button onclick="changeValue('${name}', 'amount', 1)">+</button>
-            <button onclick="changeValue('${name}', 'amount', 5)">+5</button>
+            <button class="amount-btn" onclick="changeValue('${name}', 'amount', 1)">+</button>
+            <button class="amount-btn" onclick="changeValue('${name}', 'amount', 5)">+5</button>
         `;
       }
 
+      const iconMap = {
+        MegaCredit: 'mega_credit_icon.png',
+        Steel: 'steel_icon.png',
+        Titanium: 'titinum_icon.png',
+        Plants: 'plants_icon.png',
+        Energy: 'energy_icon.png',
+        Heat: 'heat_icon.png',
+      };
+
+      let title;
+      if (iconMap[name]) {
+        title = `<div class="resource-title">${name} <img src="${iconMap[name]}" style="height: 1.2rem; vertical-align: middle;"></div>`;
+      } else {
+        title = `<div class="resource-title">${name}</div>`;
+      }
+
       div.innerHTML = `
-        <div class="resource-title">${name}</div>
+        ${title}
 
         <div class="counter">
           <div class="counter-label">Production</div>
           <div class="counter-controls">
-            <button onclick="changeValue('${name}', 'production', -1)">-</button>
+            <button class="production-btn" onclick="changeValue('${name}', 'production', -1)">-</button>
             <span id="${name}-production">1</span>
-            <button onclick="changeValue('${name}', 'production', 1)">+</button>
+            <button class="production-btn" onclick="changeValue('${name}', 'production', 1)">+</button>
           </div>
         </div>
         ${extraProduction}
