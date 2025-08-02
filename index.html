@@ -1,154 +1,192 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Teraforming Mars</title>
-    <style>
-      body {
-        font-family: "Helvetica", sans-serif;
-        margin: 0;
-        padding: 20px;
-        background: #f7f7f7;
-        position: relative;
-        min-height: 100vh;
-      }
 
-      .terraform-rate {
-        text-align: center;
-        font-weight: bold;
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teraforming Mars</title>
+  <style>
+    body {
+      font-family: "Helvetica", sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f7f7f7;
+      position: relative;
+      min-height: 100vh;
+    }
 
-      .produce-all {
-        display: block;
-        margin: 10px auto 20px;
-        padding: 12px 20px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        background-color: #2196f3;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        max-width: 300px;
-        width: 100%;
-      }
+    .terraform-rate {
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
 
-      .produce-all:active {
-        background-color: #1976d2;
-      }
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px auto 20px;
+    }
 
+    .produce-all, .undo-btn {
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      max-width: 300px;
+      width: 100%;
+    }
+
+    .produce-all {
+      background-color: #2196f3;
+    }
+
+    .produce-all:active {
+      background-color: #1976d2;
+    }
+
+    .undo-btn {
+      background-color: #f44336;
+    }
+
+    .undo-btn:active {
+      background-color: #d32f2f;
+    }
+
+    .undo-btn:disabled {
+      background-color: #bdbdbd;
+      cursor: not-allowed;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, auto);
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .resource {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .resource-title {
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+
+    .counter {
+      margin: 8px 0;
+    }
+
+    .counter-label {
+      text-align: left;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .counter-controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .counter-controls button {
+      padding: 6px 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      background-color: #4caf50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      min-width: 44px;
+    }
+
+    .counter-controls button:active {
+      background-color: #388e3c;
+    }
+
+    .counter-controls span {
+      min-width: 40px;
+      font-size: 1.2rem;
+      display: inline-block;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
       .grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: repeat(2, auto);
-        gap: 16px;
-        max-width: 1000px;
-        margin: 0 auto;
+        grid-template-columns: repeat(2, 1fr);
       }
+    }
 
-      .resource {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        padding: 16px;
-        text-align: center;
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: 1fr;
       }
+    }
+  </style>
+</head>
 
-      .resource-title {
-        font-size: 1.2rem;
-        margin-bottom: 12px;
-        font-weight: bold;
-      }
+<body>
+  <div class="terraform-rate" id="terraformRateDisplay">
+    Terraform Rate: 20
+  </div>
 
-      .counter {
-        margin: 8px 0;
-      }
-
-      .counter-label {
-        text-align: left;
-        font-size: 1rem;
-        margin-bottom: 6px;
-      }
-
-      .counter-controls {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .counter-controls button {
-        padding: 6px 10px;
-        font-size: 1rem;
-        border-radius: 8px;
-        border: none;
-        background-color: #4caf50;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        min-width: 44px;
-      }
-
-      .counter-controls button:active {
-        background-color: #388e3c;
-      }
-
-      .counter-controls span {
-        min-width: 40px;
-        font-size: 1.2rem;
-        display: inline-block;
-        text-align: center;
-        font-weight: bold;
-      }
-
-      @media (max-width: 768px) {
-        .grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-
-      @media (max-width: 480px) {
-        .grid {
-          grid-template-columns: 1fr;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="terraform-rate" id="terraformRateDisplay">
-      Terraform Rate: 20
-    </div>
-
+  <div class="action-buttons">
     <button class="produce-all" onclick="produceAll()">Produce All</button>
+    <button class="undo-btn" onclick="undo()" disabled>Undo</button>
+  </div>
 
-    <div class="grid" id="resources"></div>
+  <div class="grid" id="resources"></div>
 
-    <script>
-      const resourceNames = [
-        "MegaCredit",
-        "Steel",
-        "Titanium",
-        "Plants",
-        "Energy",
-        "Heat",
-      ];
+  <script>
+    const resourceNames = [
+      "MegaCredit",
+      "Steel",
+      "Titanium",
+      "Plants",
+      "Energy",
+      "Heat",
+    ];
 
-      const container = document.getElementById("resources");
-      const terraformRateDisplay = document.getElementById(
-        "terraformRateDisplay"
-      );
+    const container = document.getElementById("resources");
+    const terraformRateDisplay = document.getElementById(
+      "terraformRateDisplay"
+    );
+    const undoBtn = document.querySelector('.undo-btn');
+    let history = [];
 
-      resourceNames.forEach((name) => {
-        const div = document.createElement("div");
-        div.className = "resource";
+    const allValueIds = [];
+    resourceNames.forEach(name => {
+        allValueIds.push(`${name}-production`);
+        allValueIds.push(`${name}-amount`);
+        if (name === 'MegaCredit') {
+            allValueIds.push(`${name}-production2`);
+        }
+    });
 
-        let extraProduction =
-          name === "MegaCredit"
-            ? `
+
+    resourceNames.forEach((name) => {
+      const div = document.createElement("div");
+      div.className = "resource";
+
+      let extraProduction =
+        name === "MegaCredit"
+          ? `
         <div class="counter">
           <div class="counter-label">Terraform Rate</div>
           <div class="counter-controls">
@@ -157,9 +195,9 @@
             <button onclick="changeValue('${name}', 'production2', 1)">+</button>
           </div>
         </div>`
-            : "";
+          : "";
 
-        div.innerHTML = `
+      div.innerHTML = `
         <div class="resource-title">${name}</div>
 
         <div class="counter">
@@ -186,62 +224,99 @@
         </div>
       `;
 
-        container.appendChild(div);
-      });
+      container.appendChild(div);
+    });
 
-      function updateTerraformRate() {
+    function updateUndoButton() {
+        if(undoBtn) undoBtn.disabled = history.length === 0;
+    }
+
+    function saveState() {
+        const currentState = {};
+        allValueIds.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) currentState[id] = el.innerText;
+        });
+        history.push(currentState);
+        if (history.length > 30) { // Limit history size
+            history.shift();
+        }
+        updateUndoButton();
+    }
+
+    function undo() {
+        if (history.length > 0) {
+            const lastState = history.pop();
+            for (const id in lastState) {
+                const el = document.getElementById(id);
+                if(el) el.innerText = lastState[id];
+            }
+            updateTerraformRate();
+            updateUndoButton();
+        }
+    }
+
+
+    function updateTerraformRate() {
+      const valEl = document.getElementById("MegaCredit-production2");
+      if(valEl) {
         const val = parseInt(
-          document.getElementById("MegaCredit-production2").innerText,
-          10
+            valEl.innerText,
+            10
         );
         terraformRateDisplay.innerText = `Terraform Rate: ${val}`;
       }
+    }
 
-      function changeValue(name, type, delta) {
-        const id = `${name}-${type}`;
-        const el = document.getElementById(id);
-        let value = parseInt(el.innerText, 10);
+    function changeValue(name, type, delta) {
+      saveState();
+      const id = `${name}-${type}`;
+      const el = document.getElementById(id);
+      let value = parseInt(el.innerText, 10);
 
-        if (name === "MegaCredit" && type === "production") {
-          value = Math.max(-5, value + delta);
-        } else {
-          value = Math.max(0, value + delta);
-        }
-
-        el.innerText = value;
-
-        if (name === "MegaCredit" && type === "production2") {
-          updateTerraformRate();
-        }
+      if (name === "MegaCredit" && type === "production") {
+        value = Math.max(-5, value + delta);
+      } else {
+        value = Math.max(0, value + delta);
       }
 
-      function produceAll() {
-        resourceNames.forEach((name) => {
-          const prod = parseInt(
-            document.getElementById(`${name}-production`).innerText,
+      el.innerText = value;
+
+      if (name === "MegaCredit" && type === "production2") {
+        updateTerraformRate();
+      }
+    }
+
+    function produceAll() {
+      saveState();
+      resourceNames.forEach((name) => {
+        const prod = parseInt(
+          document.getElementById(`${name}-production`).innerText,
+          10
+        );
+        let extra = 0;
+        if (name === "MegaCredit") {
+          extra = parseInt(
+            document.getElementById(`${name}-production2`).innerText,
             10
           );
-          let extra = 0;
-          if (name === "MegaCredit") {
-            extra = parseInt(
-              document.getElementById(`${name}-production2`).innerText,
-              10
-            );
-          }
-          const amtEl = document.getElementById(`${name}-amount`);
-          let amt = parseInt(amtEl.innerText, 10);
-          if (name == "Energy") {
-            const heat = document.getElementById(`Heat-amount`);
-            let heatAmt = parseInt(heat.innerText, 10);
-            heat.innerText = heatAmt + amt;
-            amt = 0;
-          }
-          amtEl.innerText = amt + prod + extra;
-        });
-      }
+        }
+        const amtEl = document.getElementById(`${name}-amount`);
+        let amt = parseInt(amtEl.innerText, 10);
+        if (name == "Energy") {
+          const heat = document.getElementById(`Heat-amount`);
+          let heatAmt = parseInt(heat.innerText, 10);
+          heat.innerText = heatAmt + amt;
+          amt = 0;
+        }
+        amtEl.innerText = amt + prod + extra;
+      });
+    }
 
-      // 초기 Terraform Rate 표시 설정
-      updateTerraformRate();
-    </script>
-  </body>
+    // 초기 Terraform Rate 표시 설정
+    updateTerraformRate();
+    updateUndoButton();
+  </script>
+</body>
+
 </html>
