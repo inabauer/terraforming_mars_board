@@ -16,10 +16,29 @@
     }
 
     .terraform-rate {
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
       font-weight: bold;
       font-size: 1.2rem;
       margin-bottom: 20px;
+    }
+
+    .terraform-rate button {
+      padding: 6px 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      background-color: #4caf50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      min-width: 44px;
+    }
+
+    .terraform-rate button:active {
+      background-color: #388e3c;
     }
 
     .action-buttons {
@@ -29,7 +48,8 @@
       margin: 10px auto 20px;
     }
 
-    .produce-all, .undo-btn {
+    .produce-all,
+    .undo-btn {
       padding: 12px 20px;
       font-size: 1.1rem;
       font-weight: bold;
@@ -142,8 +162,12 @@
 </head>
 
 <body>
-  <div class="terraform-rate" id="terraformRateDisplay">
-    Terraform Rate: 20
+  <div class="terraform-rate">
+    <span id="terraformRateDisplay">Terraform Rate: 20</span>
+    <button onclick="changeTerraformRate(1)">+</button>
+  </div>
+  <div class="terraform-rate" id="generationTrackDisplay">
+    Generation Track: 1
   </div>
 
   <div class="action-buttons">
@@ -172,30 +196,38 @@
 
     const allValueIds = [];
     resourceNames.forEach(name => {
-        allValueIds.push(`${name}-production`);
-        allValueIds.push(`${name}-amount`);
-        if (name === 'MegaCredit') {
-            allValueIds.push(`${name}-production2`);
-        }
+      allValueIds.push(`${name}-production`);
+      allValueIds.push(`${name}-amount`);
     });
+    allValueIds.push('generationTrackDisplay');
+    allValueIds.push('terraformRateDisplay');
 
 
     resourceNames.forEach((name) => {
       const div = document.createElement("div");
       div.className = "resource";
 
-      let extraProduction =
-        name === "MegaCredit"
-          ? `
-        <div class="counter">
-          <div class="counter-label">Terraform Rate</div>
-          <div class="counter-controls">
-            <button onclick="changeValue('${name}', 'production2', -1)">-</button>
-            <span id="${name}-production2">20</span>
-            <button onclick="changeValue('${name}', 'production2', 1)">+</button>
-          </div>
-        </div>`
-          : "";
+      let extraProduction = "";
+
+      let amountButtons;
+
+      if (name === 'Plants' || name === 'Heat') {
+        amountButtons = `
+            <button onclick="changeValue('${name}', 'amount', -8)">-8</button>
+            <button onclick="changeValue('${name}', 'amount', -1)">-</button>
+            <span id="${name}-amount">0</span>
+            <button onclick="changeValue('${name}', 'amount', 1)">+</button>
+            <button onclick="changeValue('${name}', 'amount', 5)">+5</button>
+        `;
+      } else {
+        amountButtons = `
+            <button onclick="changeValue('${name}', 'amount', -5)">-5</button>
+            <button onclick="changeValue('${name}', 'amount', -1)">-</button>
+            <span id="${name}-amount">0</span>
+            <button onclick="changeValue('${name}', 'amount', 1)">+</button>
+            <button onclick="changeValue('${name}', 'amount', 5)">+5</button>
+        `;
+      }
 
       div.innerHTML = `
         <div class="resource-title">${name}</div>
@@ -213,13 +245,7 @@
         <div class="counter">
           <div class="counter-label">Amount</div>
           <div class="counter-controls">
-            <button onclick="changeValue('${name}', 'amount', -10)">-10</button>
-            <button onclick="changeValue('${name}', 'amount', -5)">-5</button>
-            <button onclick="changeValue('${name}', 'amount', -1)">-</button>
-            <span id="${name}-amount">0</span>
-            <button onclick="changeValue('${name}', 'amount', 1)">+</button>
-            <button onclick="changeValue('${name}', 'amount', 5)">+5</button>
-            <button onclick="changeValue('${name}', 'amount', 10)">+10</button>
+            ${amountButtons}
           </div>
         </div>
       `;
@@ -228,45 +254,41 @@
     });
 
     function updateUndoButton() {
-        if(undoBtn) undoBtn.disabled = history.length === 0;
+      if (undoBtn) undoBtn.disabled = history.length === 0;
     }
 
     function saveState() {
-        const currentState = {};
-        allValueIds.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) currentState[id] = el.innerText;
-        });
-        history.push(currentState);
-        if (history.length > 30) { // Limit history size
-            history.shift();
-        }
-        updateUndoButton();
+      const currentState = {};
+      allValueIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) currentState[id] = el.innerText;
+      });
+      history.push(currentState);
+      if (history.length > 30) { // Limit history size
+        history.shift();
+      }
+      updateUndoButton();
     }
 
     function undo() {
-        if (history.length > 0) {
-            const lastState = history.pop();
-            for (const id in lastState) {
-                const el = document.getElementById(id);
-                if(el) el.innerText = lastState[id];
-            }
-            updateTerraformRate();
-            updateUndoButton();
+      if (history.length > 0) {
+        const lastState = history.pop();
+        for (const id in lastState) {
+          const el = document.getElementById(id);
+          if (el) el.innerText = lastState[id];
         }
-    }
-
-
-    function updateTerraformRate() {
-      const valEl = document.getElementById("MegaCredit-production2");
-      if(valEl) {
-        const val = parseInt(
-            valEl.innerText,
-            10
-        );
-        terraformRateDisplay.innerText = `Terraform Rate: ${val}`;
+        updateUndoButton();
       }
     }
+
+    function changeTerraformRate(delta) {
+      saveState();
+      const rateEl = document.getElementById("terraformRateDisplay");
+      let rate = parseInt(rateEl.innerText.split(":")[1].trim(), 10);
+      rate = Math.max(0, rate + delta);
+      rateEl.innerText = `Terraform Rate: ${rate}`;
+    }
+
 
     function changeValue(name, type, delta) {
       saveState();
@@ -281,10 +303,6 @@
       }
 
       el.innerText = value;
-
-      if (name === "MegaCredit" && type === "production2") {
-        updateTerraformRate();
-      }
     }
 
     function produceAll() {
@@ -296,10 +314,8 @@
         );
         let extra = 0;
         if (name === "MegaCredit") {
-          extra = parseInt(
-            document.getElementById(`${name}-production2`).innerText,
-            10
-          );
+          const rateEl = document.getElementById("terraformRateDisplay");
+          extra = parseInt(rateEl.innerText.split(":")[1].trim(), 10);
         }
         const amtEl = document.getElementById(`${name}-amount`);
         let amt = parseInt(amtEl.innerText, 10);
@@ -311,10 +327,15 @@
         }
         amtEl.innerText = amt + prod + extra;
       });
+
+      const genEl = document.getElementById("generationTrackDisplay");
+      if (genEl) {
+        let genCount = parseInt(genEl.innerText.split(":")[1].trim(), 10);
+        genEl.innerText = `Generation Track: ${genCount + 1}`;
+      }
     }
 
     // 초기 Terraform Rate 표시 설정
-    updateTerraformRate();
     updateUndoButton();
   </script>
 </body>
